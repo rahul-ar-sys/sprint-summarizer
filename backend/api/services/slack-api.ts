@@ -1,4 +1,6 @@
-import axios from "axios";
+import axios from 'axios';
+
+const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
 /**
  * Post a message to Slack with optional attachments and enhanced configurations.
@@ -8,10 +10,8 @@ import axios from "axios";
 export async function postToSlack(
     slackMessage: { text: string; attachments?: any[] }
 ) {
-    const webhookUrl = 'https://hooks.slack.com/services/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';
-
     try {
-        await axios.post(webhookUrl, slackMessage, {
+        await axios.post(SLACK_WEBHOOK_URL, slackMessage, {
             headers: {
                 'Content-Type': 'application/json',
             },
