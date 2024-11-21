@@ -4,24 +4,14 @@ import axios from "axios";
  * Post a message to Slack with optional attachments and enhanced configurations.
  *
  * @param slackMessage The Slack message payload.
- * @param slackChannel The Slack channel to post the message to (defaults to environment variable or 'general').
- * @param slackToken The Slack token for authentication (defaults to environment variable).
  */
 export async function postToSlack(
-    slackMessage: { text: string; attachments?: any[] },
-    slackChannel: string = process.env.SLACK_CHANNEL || 'general', // Default to 'general' if not provided
-    slackToken: string = process.env.SLACK_TOKEN || ''
+    slackMessage: { text: string; attachments?: any[] }
 ) {
-    const webhookUrl = `https://hooks.slack.com/services/${slackToken}`;
-
-    // Ensure Slack message includes the channel
-    const messagePayload = {
-        channel: slackChannel,
-        ...slackMessage,
-    };
+    const webhookUrl = 'https://hooks.slack.com/services/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';
 
     try {
-        await axios.post(webhookUrl, messagePayload, {
+        await axios.post(webhookUrl, slackMessage, {
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -41,15 +31,12 @@ export async function postToSlack(
 export async function notifyBlockers(blockers: string[]) {
     if (!blockers.length) return;
 
-    const slackToken = process.env.SLACK_TOKEN || '';
-    const slackChannel = process.env.SLACK_CHANNEL || 'alerts';
-
     const alertMessage = {
         text: `🚨 *Critical Blockers Detected*: \n${blockers.join('\n')}`,
     };
 
     try {
-        await postToSlack(alertMessage, slackChannel, slackToken);
+        await postToSlack(alertMessage);
         console.log('Blocker alerts sent successfully.');
     } catch (error) {
         console.error('Error sending blocker alerts:', error);
@@ -66,9 +53,6 @@ export async function postSummaryWithTrends(
     summary: { totalTasks: number; completedTasks: number; pendingTasks: number; highlights: string[]; blockers: string[] },
     trendData?: { title: string; trendAnalysis: string }
 ) {
-    const slackToken = process.env.SLACK_TOKEN || '';
-    const slackChannel = process.env.SLACK_CHANNEL || 'general';
-
     const summaryMessage = {
         text: `*Sprint Summary*:\n
         - Total Tasks: ${summary.totalTasks}
@@ -88,11 +72,9 @@ export async function postSummaryWithTrends(
     };
 
     try {
-        await postToSlack(summaryMessage, slackChannel, slackToken);
+        await postToSlack(summaryMessage);
         console.log('Sprint summary with trends posted successfully.');
     } catch (error) {
         console.error('Error posting summary with trends:', error);
     }
 }
-
-
