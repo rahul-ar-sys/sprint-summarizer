@@ -2,6 +2,15 @@ import axios from 'axios';
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
+interface SprintData {
+    completedTasks: number;
+    inProgressTasks: number;
+    blockedTasks: number;
+    whatWentWell: string;
+    whatWentWrong: string;
+    retrospectiveInsights: string;
+}
+
 /**
  * Post a message to Slack with optional attachments and enhanced configurations.
  *
@@ -20,6 +29,100 @@ export async function postToSlack(
     } catch (error) {
         console.error('Error posting message to Slack:', error);
         throw error;
+    }
+}
+
+/**
+ * Sends a sprint summary to Slack via a webhook.
+ * 
+ * @param webhookUrl - The Slack webhook URL.
+ * @param sprintData - The sprint data to include in the summary.
+ */
+export async function postSprintSummaryToSlack(webhookUrl: string, sprintData: SprintData): Promise<void> {
+    const payload = {
+        text: "🏁 *Sprint Summary* 🏁",
+        blocks: [
+            {
+                type: "header",
+                text: {
+                    type: "plain_text",
+                    text: "🚀 Sprint Overview"
+                }
+            },
+            {
+                type: "section",
+                fields: [
+                    {
+                        type: "mrkdwn",
+                        text: `*Completed Tasks:*\n${sprintData.completedTasks}`
+                    },
+                    {
+                        type: "mrkdwn",
+                        text: `*In-Progress Tasks:*\n${sprintData.inProgressTasks}`
+                    },
+                    {
+                        type: "mrkdwn",
+                        text: `*Blocked Tasks:*\n${sprintData.blockedTasks}`
+                    }
+                ]
+            },
+            {
+                type: "divider"
+            },
+            {
+                type: "header",
+                text: {
+                    type: "plain_text",
+                    text: "✨ What Went Well"
+                }
+            },
+            {
+                type: "section",
+                text: {
+                    type: "mrkdwn",
+                    text: sprintData.whatWentWell
+                }
+            },
+            {
+                type: "header",
+                text: {
+                    type: "plain_text",
+                    text: "⚠️ What Went Wrong"
+                }
+            },
+            {
+                type: "section",
+                text: {
+                    type: "mrkdwn",
+                    text: sprintData.whatWentWrong
+                }
+            },
+            {
+                type: "header",
+                text: {
+                    type: "plain_text",
+                    text: "💡 Retrospective Insights"
+                }
+            },
+            {
+                type: "section",
+                text: {
+                    type: "mrkdwn",
+                    text: sprintData.retrospectiveInsights
+                }
+            }
+        ]
+    };
+
+    try {
+        const response = await axios.post(webhookUrl, payload);
+        if (response.status === 200) {
+            console.log('Sprint summary posted to Slack successfully.');
+        } else {
+            console.error('Failed to post to Slack. Status:', response.status);
+        }
+    } catch (error: any) {
+        console.error('Error posting to Slack:', error.message);
     }
 }
 
@@ -78,3 +181,20 @@ export async function postSummaryWithTrends(
         console.error('Error posting summary with trends:', error);
     }
 }
+
+// Test function to post a simple message
+async function testPostToSlack() {
+    const testMessage = {
+        text: "Hello, Slack! This is a test message from the Sprint Summarizer. 🚀",
+    };
+
+    try {
+        await postToSlack(testMessage);
+        console.log("Test message sent successfully.");
+    } catch (error) {
+        console.error("Error sending test message:", error.message);
+    }
+}
+
+// Call the test function
+testPostToSlack();

@@ -1,12 +1,20 @@
 import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Fetch current sprint data.
  */
 export async function fetchSprintData() {
     try {
-        const response = await axios.get('https://api.example.com/sprint-data');
-        return response.data;
+        if (process.env.USE_MOCK_DATA === 'true') {
+            const filePath = path.resolve(__dirname, '../../fixtures/function_1_event.json');
+            const data = fs.readFileSync(filePath, 'utf-8');
+            return JSON.parse(data);
+        } else {
+            const response = await axios.get('https://api.example.com/sprint-data');
+            return response.data;
+        }
     } catch (error) {
         console.error('Error fetching sprint data:', error);
         throw error;
@@ -22,22 +30,6 @@ export async function fetchHistoricalData() {
         return response.data;
     } catch (error) {
         console.error('Error fetching historical sprint data:', error);
-        throw error;
-    }
-}
-
-/**
- * Fetch custom sprint metrics based on user preferences.
- * @param metrics List of metrics to fetch, e.g., ['velocity', 'completion_rate'].
- */
-export async function fetchCustomMetrics(metrics: string[]) {
-    try {
-        const response = await axios.post('https://api.example.com/custom-metrics', {
-            metrics,
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching custom metrics:', error);
         throw error;
     }
 }

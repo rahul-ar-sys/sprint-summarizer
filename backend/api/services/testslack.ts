@@ -1,4 +1,8 @@
 import { postToSlack } from './slack-api';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Test function to post a simple message
 async function testPostToSlack() {
